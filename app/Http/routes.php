@@ -51,3 +51,8 @@ Route::group(['prefix' => 'Queue', 'namespace' => 'Test'], function () {
     //redis 的pub/sub
     Route::get('redissubscribe', ['uses' => 'QueueController@redisSubscribe']);
 });
+
+Route::group(['prefix' => 'Test', 'namespace' => 'Test'], function () {
+    //redis list的blpop模拟队列
+    Route::get('test', ['uses' => 'TestController@justTest']);
+});
