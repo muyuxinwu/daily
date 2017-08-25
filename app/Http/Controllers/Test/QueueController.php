@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Redis;
 class QueueController extends Controller
 {
 
-    /**¶
+    /**
      * 通过将控制器方法封装成命令来测试redis列表模拟消息队列
      * @return mixed
      */

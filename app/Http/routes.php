@@ -52,7 +52,16 @@ Route::group(['prefix' => 'Queue', 'namespace' => 'Test'], function () {
     Route::get('redissubscribe', ['uses' => 'QueueController@redisSubscribe']);
 });
 
+/**
+ * redis操作测试
+ */
+Route::group(['prefix' => '', 'namespace' => 'Test'], function () {
+    Route::get('redis', ['uses' => 'RedisController@scan']);
+});
+
+/**
+ * 单元测试
+ */
 Route::group(['prefix' => 'Test', 'namespace' => 'Test'], function () {
-    //redis list的blpop模拟队列
     Route::get('test', ['uses' => 'TestController@justTest']);
 });
