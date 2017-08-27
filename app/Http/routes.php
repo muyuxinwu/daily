@@ -40,6 +40,9 @@ Route::group(['prefix' => 'Concurrent', 'namespace' => 'Test'], function () {
     Route::get('redisoversell', ['uses' => 'ConcurrentController@redisOversell']);
     //redis 事务+watch乐观锁 解决超卖
     Route::get('rediswatch', ['uses' => 'ConcurrentController@redisWatchConcurrent']);
+    //redis原子性解决超卖问题
+    Route::get('redisatomicconcurrent', ['uses' => 'ConcurrentController@redisAtomicConcurrent']);
+    
     Route::get('mysqltomlock', ['uses' => 'ConcurrentController@mysqlAtomLock']);
 });
 

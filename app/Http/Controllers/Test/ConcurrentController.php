@@ -42,6 +42,7 @@ class ConcurrentController extends Controller
      */
     public function mysqlOverSellSql()
     {
+        //TODO 有异议(此处锁的理解并不透彻)
         //echo '<pre/>';
         //DB::enableQueryLog();
         Goods::where(['id' => 1])
@@ -89,6 +90,25 @@ class ConcurrentController extends Controller
                 usleep(500000);
                 Goods::where(['id' => 1])->decrement('num', 1);
             }
+        }
+    }
+
+    /**
+     * redis: 原子操作解决问题
+     * 解决并发超卖问题
+     */
+    public function redisAtomicConcurrent()
+    {
+        //注意不要将num的值取出来之后, 再if判断库存, 否则会出现幻读, 导致超卖
+        $num = Redis::decr('num');
+        if ($num > -1) {
+            usleep(500000);
+            Log::info('yes');
+            //注意:接下来的业务都需要在事务成功之后进行哦(否则事务失败也进行了,那就没有意义了)
+            Goods::where(['id' => 1])->decrement('num', 1);
+        } else {
+            //注意: 如果出现并发购买减库存的时候,需要把数量加回去
+            Redis::incr('num');
         }
     }
 
