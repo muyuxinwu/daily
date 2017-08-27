@@ -34,6 +34,8 @@ Route::group(['prefix' => 'test', 'namespace' => 'Test'], function () {
 Route::group(['prefix' => 'Concurrent', 'namespace' => 'Test'], function () {
     //mysql模拟并发超卖
     Route::get('mysqloversell', ['uses' => 'ConcurrentController@mysqlOverSell']);
+    //使用mysql原子锁
+    Route::get('mysqloversellsql', ['uses' => 'ConcurrentController@mysqlOverSellSql']);
     //当然,redis并发也会出现超卖的问题
     Route::get('redisoversell', ['uses' => 'ConcurrentController@redisOversell']);
     //redis 事务+watch乐观锁 解决超卖
