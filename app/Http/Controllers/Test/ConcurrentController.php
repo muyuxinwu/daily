@@ -53,7 +53,7 @@ class ConcurrentController extends Controller
     }
 
     /**
-     * 使用redis模拟并发超卖
+     * 使用redis模拟并发超卖 (这里和事务其实没什么关系, 主要是可能会有多个redis操作)
      */
     public function redisOversell()
     {
@@ -63,8 +63,6 @@ class ConcurrentController extends Controller
             usleep(500000);
             //预先已经设置好库存为10个了
             Redis::decr('num');
-            //Redis::hSet("successUsers", "user_id" . mt_rand(1, 999999), microtime());
-            Redis::exec();
         }
     }
 
@@ -83,6 +81,7 @@ class ConcurrentController extends Controller
             //预先已经设置好库存为10个了
             Redis::decr('num');
             //之后的业务逻辑,如果涉及到其他redis键的操作,也是需要提前对它加watch
+            //.....
             $res = Redis::exec();
             Log::info($res);
             //注意:接下来的业务都需要在事务成功之后进行哦(否则事务失败也进行了,那就没有意义了)
@@ -100,6 +99,7 @@ class ConcurrentController extends Controller
     public function redisAtomicConcurrent()
     {
         //注意不要将num的值取出来之后, 再if判断库存, 否则会出现幻读, 导致超卖
+        //不然就和'redisOversell'方法中的类似了(只不过'redisOversell'方法中多了对事务的使用)
         $num = Redis::decr('num');
         if ($num > -1) {
             usleep(500000);
