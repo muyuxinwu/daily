@@ -69,6 +69,7 @@ class ConcurrentController extends Controller
     /**
      * redis: Watch+事务
      * 解决并发超卖问题
+     * 要是有多项redis操作, 也就是需要使用事务, 就必须使用watch来解决并发超卖的问题
      */
     public function redisWatchConcurrent()
     {
@@ -84,9 +85,13 @@ class ConcurrentController extends Controller
             //.....
             $res = Redis::exec();
             Log::info($res);
-            //注意:接下来的业务都需要在事务成功之后进行哦(否则事务失败也进行了,那就没有意义了)
+            //注意:接下来的业务都需要在事务成功之后进行哦
             if ($res) {
-                //接下来的是模拟后续的mysql操作 (其实还有疑问就是如果后续操作失败的话... 如何保证回滚?)
+//接下来可能会有很多后续操作, 可能是操作mysql也可能是继续操作redis
+//此处模拟后续将要进行的是mysql操作
+//新的问题是, 如果后续操作失败了...(因此, 此处还有疑问就是如果后续操作失败的话... 如何保证之前的redis减库存等很多操作回滚? 如果就一个减库存还比较简单,直接在后续操作失败后加回来就的了)
+//采用消息队列让其具备重试功能?(使用队列的话,一般不是针对代码有问题,而是服务器突然宕机,重启后队列能够进行重发)
+//采用其他方案?()
                 usleep(500000);
                 Goods::where(['id' => 1])->decrement('num', 1);
             }
@@ -105,7 +110,9 @@ class ConcurrentController extends Controller
         if ($num > -1) {
             usleep(500000);
             Log::info('yes');
-            //接下来的是模拟后续的mysql操作 (其实还有疑问就是如果后续操作失败的话... 如何保证回滚?)
+//接下来可能会有很多后续操作, 可能是操作mysql也可能是继续操作redis
+//此处模拟后续将要进行的是mysql操作
+//新的问题是, 如果后续操作失败了...(因此, 此处还有疑问就是如果后续操作失败的话,如何保证之前的redis减库存操作回滚? 如果就一个减库存还比较简单,直接在后续操作失败后加回来就的了)
             Goods::where(['id' => 1])->decrement('num', 1);
         } else {
             //注意: 如果出现并发购买减库存的时候,需要把数量加回去
