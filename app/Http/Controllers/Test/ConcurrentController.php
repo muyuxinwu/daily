@@ -86,6 +86,7 @@ class ConcurrentController extends Controller
             Log::info($res);
             //注意:接下来的业务都需要在事务成功之后进行哦(否则事务失败也进行了,那就没有意义了)
             if ($res) {
+                //接下来的是模拟后续的mysql操作 (其实还有疑问就是如果后续操作失败的话... 如何保证回滚?)
                 usleep(500000);
                 Goods::where(['id' => 1])->decrement('num', 1);
             }
@@ -104,7 +105,7 @@ class ConcurrentController extends Controller
         if ($num > -1) {
             usleep(500000);
             Log::info('yes');
-            //接下来的是模拟后续的mysql操作
+            //接下来的是模拟后续的mysql操作 (其实还有疑问就是如果后续操作失败的话... 如何保证回滚?)
             Goods::where(['id' => 1])->decrement('num', 1);
         } else {
             //注意: 如果出现并发购买减库存的时候,需要把数量加回去
